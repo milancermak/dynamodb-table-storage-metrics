@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: >-
+  A function that publishes two custom CloudWatch metrics regarding
+  the storage size and item count of all DynamoDB tables in a region.
+  You can then use the metrics to monitor the size of your tables.
+
+Parameters:
+  MetricNamespace:
+    Description: >-
+      Name of the CloudWatch namespace to which the
+      metrics will be published.
+    Default: DynamoDBStorageMetrics
+    Type: String
+
+Globals:
+  Function:
+    Environment:
+      Variables:
+        REGION: !Ref AWS::Region
+    Timeout: 300
+    MemorySize: 128
+
+Resources:
+  DDBTableMonitor:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: >-
+        Function publishing the size of DynamoDB tables
+        as custom metrics to Cloudwatch
+      CodeUri: monitor/
+      Handler: main.handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          METRIC_NAMESPACE: !Ref MetricNamespace
+      Events:
+        PeriodicalTrigger:
+          Type: Schedule
+          Properties:
+            Schedule: rate(6 hours)
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Effect: Allow
+              Action: dynamodb:DescribeTable
+              Resource: '*'
+            - Effect: Allow
+              Action: dynamodb:ListTables
+              Resource: '*'
+
+Outputs:
+  DDBTableMonitorFunction:
+    Description: "DynamoDB table monitor function ARN"
+    Value: !GetAtt DDBTableMonitor.Arn

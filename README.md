@@ -1,4 +1,4 @@
-# sam-dynamodb-table-storage-metrics
+# dynamodb-table-storage-metrics
 [![Build Status](https://travis-ci.com/milancermak/dynamodb-table-storage-metrics.svg?branch=master)](https://travis-ci.com/milancermak/dynamodb-table-storage-metrics)
 
 A simple [SAM](https://github.com/awslabs/serverless-application-model) app that automatically publishes DynamoDB table storage metrics to Cloudwatch. The application consists of only a single Lambda function that is periodically invoked by a CloudWatch trigger. Once the application is deployed, it is maintenance-free. You can then use the new metrics it creates to monitor your DynamoDB table usage.
